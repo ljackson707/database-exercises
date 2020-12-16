@@ -22,5 +22,6 @@ SELECT databases();
 # Show the code that created this specific database
 SHOW CREATE DATABASE fruits_db;
 
-# 
+# Quoting indetifiers
+USE `sakila`
 
