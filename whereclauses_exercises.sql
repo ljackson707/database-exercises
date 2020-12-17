@@ -84,7 +84,7 @@ AND airconditioningtypeid IS NULL
 LIMIT 10;
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#Where_Exercises
+##**Where_Exercises**
 
 #Create a file named where_exercises.sql. Make sure to use the employees database.
 use employees;
@@ -169,4 +169,5 @@ WHERE
 last_name LIKE '%q%'
 AND NOT 
 last_name LIKE '%qu%';#547
+
 
