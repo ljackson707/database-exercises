@@ -34,5 +34,11 @@ WHERE sales < 20.0;
 SHOW CREATE TABLE albums;
 SELECT *
 FROM albums
-WHERE genre = 'Rock'; #There is a genre of just "Rock". If we wanted to ve it include all rock genres then we would use a concat and alias. 
+WHERE genre = 'Rock'; 
+#There is a genre of just "Rock". If we wanted to ve it include all rock genres then we would use a concat and alias. 
 
+# Or you can use the LIKE operand
+SHOW CREATE TABLE albums;
+SELECT *
+FROM albums
+WHERE genre LIKE '%Rock%';
