@@ -16,6 +16,6 @@ SHOW CREATE TABLE employees;
 #-hire_date
 #-birth_date
 
-# Deppartments is a parent to department managers and dept_manager is a sibling to employees.
+# The employees table has a emp_no column that refrences the emp_no on the departments tables
 
 SHOW CREATE TABLE dept_manager;
