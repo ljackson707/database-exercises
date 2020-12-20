@@ -86,17 +86,30 @@ AND NOT last_name LIKE "%qu%"
 GROUP BY emp_with_q_not_qu;
 
 #6)Add a COUNT() to your results (the query above) and use ORDER BY to make it easier to find employees whose unusual name is shared with others.
-SELECT concat(first_name," ",last_name)) as emp_with_q_not_qu, count(*)
-FROM employees 
+SELECT concat(first_name," ", last_name) as full_name, count(*)
+FROM employees
 WHERE last_name LIKE "%q%"
 AND NOT last_name LIKE "%qu%"
-ORDER BY first_name DESC;
-
+GROUP BY full_name DESC
+ORDER BY count(*) DESC;
 
 #7)Find all all employees with first names 'Irena', 'Vidya', or 'Maya'. Use COUNT(*) and GROUP BY to find the number of employees for each gender with those names.
-
+SELECT concat(first_name," ", gender) as emp_gender, count(*)
+FROM employees
+WHERE first_name IN('Irena', 'Vidya', 'Maya')
+GROUP BY emp_gender DESC;
 
 #8)Using your query that generates a username for all of the employees, generate a count employees for each unique username. Are there any duplicate usernames? BONUS: How many duplicate usernames are there?
 
+SELECT lower(concat(substr(first_name,1, 1),
+		substr(last_name, 1,4),
+		"_",
+		substr(birth_date,6,2),
+		substr(birth_date,3,2)))
+		AS employee_username,
+		count(*)
+FROM employees
+GROUP BY employee_username
+ORDER BY count(*) DESC;
 
 
