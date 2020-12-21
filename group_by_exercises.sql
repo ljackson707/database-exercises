@@ -107,9 +107,11 @@ SELECT lower(concat(substr(first_name,1, 1),
 		substr(birth_date,6,2),
 		substr(birth_date,3,2)))
 		AS employee_username,
-		count(*)
+		count(*) as count
 FROM employees
 GROUP BY employee_username
+HAVING  count(*) > 1
 ORDER BY count(*) DESC;
 
+#Bonus = #12251 Duplicate Usernames
 
