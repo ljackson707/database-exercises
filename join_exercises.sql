@@ -93,7 +93,7 @@ Limit 1;
 
 #8 Who is the highest paid employee in the Marketing department?
 
-Select first_name, last_name
+Select first_name, last_name, salary
 from employees 
 join salaries using(emp_no)
 join dept_emp using(emp_no)
@@ -119,84 +119,135 @@ limit 1;
 
 #10 Bonus Find the names of all current employees, their department name, and their current managers name.
 
-Select *
+Select concat(employees.first_name," ", employees.last_name) as "Employee Name", 
+dept_name, dept_manager.emp_no,
+concat(managers.first_name," ", managers.last_name)
 from employees 
 join dept_emp using(emp_no)
-join departments using(dept_no);
-	
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-SELECT *
-from (Select concat(first_name," ", last_name) as "Employee Name"
-From employees
-join dept_emp using(emp_no)
 join departments using(dept_no)
-Where dept_emp.to_date > curdate()) T1
-
-join (select dept_name as "Department Name"
-from dept_manager
-join dept_emp using(dept_no)
-join departments using(dept_no)
-group by dept_name) T2
-
-join (Select concat(first_name," ", last_name) as "Manager Name"		
-from employees
-join dept_emp using(emp_no)
-join departments using(dept_no)
-join dept_manager using(emp_no)
-Where dept_manager.to_date > curdate()) T3
-group by dept.no;
-
-
-
-
-
-
-#Dont Touch 
-
-
-
-
-Select *
-from (Select employees_with_departments.dept_name, concat(first_name," ", last_name) as "Manager Name"		
-from employees_with_departments
-join departments using(dept_no)
-join dept_manager using(emp_no)
-Where dept_manager.to_date > curdate())T1
- 
-join (Select concat(e.first_name," ", e.last_name) as "Employee Name"
-From employees as e
-Join employees_with_departments using(emp_no)
-Join departments using(dept_no)
-join dept_emp using(emp_no)
-Where dept_emp.to_date > curdate()) T2;
-
-
-	
-
+join dept_manager using(dept_no)
+join employees as managers on managers.emp_no = dept_manager.emp_no
+Where dept_manager.to_date > curdate()
+and dept_emp.to_date > curdate()
+Order by dept_name;
 
 #11 Bonus Who is the highest paid employee within each department.
+
+select first_name, last_name, salary, dept_name
+from employees
+join salaries on salaries.emp_no = employees.emp_no
+join dept_emp on dept_emp.emp_no = employees.emp_no
+join departments on departments.dept_no = dept_emp.dept_no
+where salary in (
+	Select max(salary)
+	from employees
+	join salaries on salaries.emp_no = employees.emp_no
+	join dept_emp on dept_emp.emp_no = employees.emp_no
+	join departments on departments.dept_no = dept_emp.dept_no
+	group by dept_name
+)
+And salaries.to_date > curdate()
+And dept_emp.to_date > curdate();
+
+#OR 
+
+(SELECT first_name, last_name, salary, dept_name
+	FROM employees
+		JOIN salaries USING(emp_no)
+		JOIN dept_emp USING(emp_no)
+		JOIN departments USING(dept_no)
+	WHERE dept_name = 'Sales'
+		AND salaries.to_date > curdate()
+		AND dept_emp.to_date > curdate()
+	ORDER BY salary DESC
+	LIMIT 1)
+UNION
+(SELECT first_name, last_name, salary, dept_name
+	FROM employees
+		JOIN salaries USING(emp_no)
+		JOIN dept_emp USING(emp_no)
+		JOIN departments USING(dept_no)
+	WHERE dept_name = 'Marketing'
+		AND salaries.to_date > curdate()
+		AND dept_emp.to_date > curdate()
+	ORDER BY salary DESC
+	LIMIT 1)
+UNION 
+(SELECT first_name, last_name, salary, dept_name
+	FROM employees
+		JOIN salaries USING(emp_no)
+		JOIN dept_emp USING(emp_no)
+		JOIN departments USING(dept_no)
+	WHERE dept_name = 'Finance'
+		AND salaries.to_date > curdate()
+		AND dept_emp.to_date > curdate()
+	ORDER BY salary DESC
+	LIMIT 1)
+UNION 
+(SELECT first_name, last_name, salary, dept_name
+	FROM employees
+		JOIN salaries USING(emp_no)
+		JOIN dept_emp USING(emp_no)
+		JOIN departments USING(dept_no)
+	WHERE dept_name = 'Human Resources'
+		AND salaries.to_date > curdate()
+		AND dept_emp.to_date > curdate()
+	ORDER BY salary DESC
+	LIMIT 1)
+UNION 
+(SELECT first_name, last_name, salary, dept_name
+	FROM employees
+		JOIN salaries USING(emp_no)
+		JOIN dept_emp USING(emp_no)
+		JOIN departments USING(dept_no)
+	WHERE dept_name = 'Production'
+		AND salaries.to_date > curdate()
+		AND dept_emp.to_date > curdate()
+	ORDER BY salary DESC
+	LIMIT 1)
+UNION 
+(SELECT first_name, last_name, salary, dept_name
+	FROM employees
+		JOIN salaries USING(emp_no)
+		JOIN dept_emp USING(emp_no)
+		JOIN departments USING(dept_no)
+	WHERE dept_name = 'Development'
+		AND salaries.to_date > curdate()
+		AND dept_emp.to_date > curdate()
+	ORDER BY salary DESC
+	LIMIT 1)
+UNION
+(SELECT first_name, last_name, salary, dept_name
+	FROM employees
+		JOIN salaries USING(emp_no)
+		JOIN dept_emp USING(emp_no)
+		JOIN departments USING(dept_no)
+	WHERE dept_name = 'Quality Management'
+		AND salaries.to_date > curdate()
+		AND dept_emp.to_date > curdate()
+	ORDER BY salary DESC
+	LIMIT 1)
+UNION
+(SELECT first_name, last_name, salary, dept_name
+	FROM employees
+		JOIN salaries USING(emp_no)
+		JOIN dept_emp USING(emp_no)
+		JOIN departments USING(dept_no)
+	WHERE dept_name = 'Research'
+		AND salaries.to_date > curdate()
+		AND dept_emp.to_date > curdate()
+	ORDER BY salary DESC
+	LIMIT 1)
+UNION
+(SELECT first_name, last_name, salary, dept_name
+	FROM employees
+		JOIN salaries USING(emp_no)
+		JOIN dept_emp USING(emp_no)
+		JOIN departments USING(dept_no)
+	WHERE dept_name = 'Customer Service'
+		AND salaries.to_date > curdate()
+		AND dept_emp.to_date > curdate()
+	ORDER BY salary DESC
+	LIMIT 1);
+
+
