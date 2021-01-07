@@ -1,94 +1,3 @@
-Use employees;
-
-#Create a Temporary table (n is column name) (Unsigned Not Null are the modifiers)
-CREATE TEMPORARY TABLE my_numbers(
-    n INT UNSIGNED NOT NULL 
-);
-
-#Create a Permanent table
-CREATE TABLE my_numbers(
-    n INT UNSIGNED NOT NULL 
-);
-
-#Must use this database to make temp tabes
-Use easley_1272;
-
-#This is the quarey that we want to put itno the temp table
-select 1, 2, 3, 4, 5 * 12;
-
-#Quary and table mixed together
-Use easley_1272;
-
-CREATE TEMPORARY TABLE numbers as (
-    select 1, 2, 3, 4, 5 * 12
-);
-select * from numbers;
-
-#Modifying temp tables (Updating temp table)
-DATE my_numbers SET n = n + 1;
-
-#Examples
-CREATE TEMPORARY TABLE my_numbers1(
-	n INT UNSIGNED NOT NULL 
-);
-
-INSERT INTO my_numbers1(n) VALUES (1), (2), (3), (4), (5);
-
-select * 
-from my_numbers1;
-
-update my_numbers1
-set n = 503
-where n = 5; # using the where clause to isolate specific 
-
-select * 
-from my_numbers1;
-
-#(deleteing values from temp table)
-DELETE FROM my_numbers1 WHERE n % 2 = 0; # where n = even numbers are deleted
-
-select * 
-from my_numbers1;
-
-#When doing temp tables 
-#Satrt by using your own database (so you ca write/edit/delete/whatever)
-
-#Step 1
-#start 
-#use easley database
-Use easley_1272;
-
-#Step 2
-#lets make a temp table of current employees w/ their salary
-select *
-from employees.employees # database_name.table_name
-join employees.salaries using(emp_no) # database_name.table_name
-where to_date > curdate();
-
-#Step 3
-#Wrap up quarey in temp table
-create temporary table emp_salary as (
-	select *
-	from employees.employees # database_name.table_name
-	join employees.salaries using(emp_no) # database_name.table_name
-	where to_date > curdate()
-);
-
-#Step 4 
-#show temp table to edit (will not touch source data)
-select *
-from emp_salary;
-#AFTER WE HAVE A TEMP TABLE WHERE WE CAN QUERY FROM IT OR ALTER DATA WHEN NEEDED 
-
-#Stakeholders say:
-#What would our total slary be if everybody got a 5% rasie?
-#example of when to use a temp table.
-update emp_salary
-set salary = salary + salary * .05;
-
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 USE easley_1272;
 
 #1) Using the example from the lesson, re-create the employees_with_departments table
@@ -207,62 +116,101 @@ join salaries using(emp_no)
 where salaries.to_date > curdate()
 group by dept_name;
 
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #New Temp Table w/each column and z score
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~							
 Use easley_1272;
 
-CREATE TEMPORARY TABLE ewd3 AS (
-		SELECT emp_no, concat(first_name," ", last_name) as "Full Name", departments.dept_no, departments.dept_name, salaries.salary
-		FROM employees.employees_with_departments 
-		JOIN employees.salaries using(emp_no)
+#Table 1
+CREATE TEMPORARY TABLE avg_hist11 AS (
+		SELECT round(avg(salaries.salary), 2) as "avg_hist_salary", departments.dept_name
+		FROM employees.salaries
 		JOIN employees.dept_emp USING(emp_no)
-		JOIN employees.departments on employees.departments.dept_no = employees.employees_with_departments.dept_no);
-				
-Select *
-from ewd3;				
-		
-Alter table ewd3 add average_hist_salary decimal(9, 2);
-				
-Alter table ewd3 add average_curr_salary decimal(9, 2); 
-
-Alter table ewd3 add z_score int; 
+		join employees.departments using(dept_no)
+		group by dept_name);
 
 Select *
-from ewd3;		
-				
-update ewd3
-set average_hist_salary	= (
-				select round(avg(employees.salaries.salary), 2) 
-				from employees.employees_with_departments
-				join employees.salaries using(emp_no));
-update ewd3
-set average_curr_salary	= (	
-				select round(avg(employees.salaries.salary), 2)
-				from employees.employees
-				join employees.salaries using(emp_no)
-				join employees.employees_with_departments using(emp_no)
-				join employees.departments using(dept_no)
-				where employees.salaries.to_date > curdate()
-				group by employees.departments.dept_name
-				limit 1);
+from avg_hist11;
+
+#Table 2		
+CREATE TEMPORARY TABLE avg_curr1 AS (
+		SELECT round(avg(salaries.salary), 2) as "avg_curr_salary", departments.dept_name
+		FROM employees.salaries
+		JOIN employees.dept_emp USING(emp_no)
+		join employees.departments using(dept_no)
+		where employees.salaries.to_date > curdate()
+		group by dept_name);
 		
-				
 Select *
-from ewd3;
+from avg_curr1;	
+
+#Table 3
+CREATE TEMPORARY TABLE overall_hist_avg1 AS (
+		SELECT round(avg(salaries.salary), 2) as "overall_hist_avg"
+		FROM employees.salaries);
+
+select * 
+from overall_hist_avg1;
+
+# We use Inner join to join each temp table (avg_curr and avg_hist)
+select avg_hist11.*, avg_curr1.*
+from avg_hist11
+inner join avg_curr1 on avg_hist11.dept_name = avg_curr1.dept_name;
+
+#Table 4 create a table called combined averages.
+CREATE TEMPORARY TABLE comb_avg AS (
+	select avg_hist11.*, avg_curr1.avg_curr_salary
+	from avg_hist11
+	right join avg_curr1 on avg_hist11.dept_name = avg_curr1.dept_name);
 	
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~				
-				Use employees;
-				
-				select round(avg(salary), 2) as "average curr.salary", dept_name
-				from employees_with_departments
-				join salaries using(emp_no)
-				where salaries.to_date > curdate()
-				group by dept_name;
-						
-						
-				select round(avg(employees.salaries.salary), 2) 
-				from employees.employees_with_departments
-				join employees.salaries using(emp_no);
-		
+select * 
+from comb_avg;
+
+# Use alter table
+Alter table comb_avg add z_score decimal(9, 2);
+
+select * 
+from comb_avg;
+
+#create final table (cross join due to no similar column names)
+CREATE TEMPORARY TABLE final AS (
+	select overall_hist_avg1.*, comb_avg.*
+	from comb_avg
+	cross join overall_hist_avg1);
+	
+select *
+from final;
+#~~~~~~~~~~~~~
+select round(STDDEV(avg_curr_salary), 2)
+from final; #(found the STD of avg_curr_salary)
+
+#8034.52
+#~~~~~~~~~~~~~~~~~~~~~
+Alter table final add x_mean decimal(9, 2);
+
+select *
+from final; #(added x_mean column)
+#~~~~~~~~~~~~~~~~~~~~~~~~~
+update final
+set x_mean = (avg_curr_salary - overall_hist_avg);
+
+select *
+from final; #(found the diff of avg_curr and avg_overall_hist)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+update final
+set z_score = x_mean/8034.52;
+
+select *
+from final;
+
+#final output
+
+select *
+from final
+order by z_score DESC;
+
+ #answer 
+ 	#63810.74	80667.61	Sales	88842.16	3.12	25031.42
+
+
+
