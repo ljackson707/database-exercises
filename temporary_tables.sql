@@ -99,6 +99,11 @@ CHANGE COLUMN new_amount amount int;
 SELECT *
 from payment4;
 
+#OR 
+#simple way
+
+
+
 #3) Find out how the current average pay in each department compares to the overall, historical 	average pay. In order to make the comparison easier, you should use the Z-score for salaries. 	In terms of salary, what is the best department right now to work for? The worst?
 
 Use employees;
@@ -180,11 +185,18 @@ CREATE TEMPORARY TABLE final AS (
 	
 select *
 from final;
-#~~~~~~~~~~~~~
+#~~~~~~~~~~~~~~~~~~~~
 select round(STDDEV(avg_curr_salary), 2)
 from final; #(found the STD of avg_curr_salary)
 
-#8034.52
+#8034.52 
+
+
+
+#need to find std for each dept_name 
+
+
+
 #~~~~~~~~~~~~~~~~~~~~~
 Alter table final add x_mean decimal(9, 2);
 
@@ -210,7 +222,12 @@ from final
 order by z_score DESC;
 
  #answer 
- 	#63810.74	80667.61	Sales	88842.16	3.12	25031.42
+ 	
+ #63810.74	80667.61	Sales	88842.16	3.12	25031.42
 
+#We could have added the avg_hist_salary and the avg_curr_salary then found the z score for each row which is = (avg_hist_salary - avg_curr_salary) / std(avg_curr_salary)
 
+# z-score = (mean - pop.mean) / std(mean)
+
+#We got it right we just needed to have the std of each dept_name and we needed the current employees and current slaries. 10$ off on sales, but sales is the best dept to work int
 
