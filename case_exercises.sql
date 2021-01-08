@@ -165,33 +165,3 @@ join salaries as s on s.emp_no = ewd.emp_no
 group by dept_group;
 		
 
-
-
-
-
-
-
-
-use employees;
-
-SELECT avg(salary) as avg_salary, dept_group
-from salaries cross join
-		(select dept_name,
-			CASE 
-            WHEN dept_name IN ('research', 'development') THEN 'R&D'
-            WHEN dept_name IN ('sales', 'marketing') THEN 'Sales & Marketing' 
-            WHEN dept_name IN ('Production', 'Quality Management') THEN 'Prod & QM'
-            WHEN dept_name IN ('Finance', 'Human Resources') THEN 'Finance & HR'  
-            ELSE "Customer Service"
-        end as dept_group 
-      	from departments) as t1
-Where salaries.to_date > curdate()
-group by dept_group;
-
-
-select avg(salary), dept_name
-from salaries 
-join dept_emp using(emp_no)
-join departments using(dept_no)
-group by dept_name;
-
