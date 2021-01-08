@@ -95,11 +95,18 @@ from example;
 #1) Write a query that returns all employees (emp_no), their department number, their start date, their end date, and a new column 'is_current_employee' that is a 1 if the employee is still with the company and 0 if not.
 use employees; 
 
-select emp_no, dept_emp.dept_no, employees.hire_date as start_date, salaries.to_date as end_date,
-	If (salaries.to_date >= curdate(), True, False) as is_current_employee
-from employees
-join dept_emp using(emp_no)
-join salaries using(emp_no);
+select dept_emp.emp_no, dept_no, to_date, from_date, hire_date,
+	If (to_date = "9999-01-01", 1, 0) as is_current_employee,
+	If (hire_date = from_date, 1, 0) as only_one_dept #checks for dups in more than on dept
+from dept_emp
+join (select 
+		emp_no,
+		max(to_date) as max_date
+from dept_emp
+group by emp_no) as last_dept
+on dept_emp.emp_no =last_dept.emp_no
+		And dept_emp.to_date = last_dept.max_date
+join employees as e on e.emp_no = dept_emp.emp_no;
 
 #2)Write a query that returns all employee names (previous and current), and a new column 'alpha_group' that returns 'A-H', 'I-Q', or 'R-Z' depending on the first letter of their last name.
 
@@ -122,37 +129,69 @@ select concat(first_name," ",last_name) as employee_name,
 		when 'O' Then 'I-Q'
 		when 'P' Then 'I-Q'
 		when 'Q' Then 'I-Q'
-		when 'R' Then 'R-Z'
-		when 'S' Then 'R-Z'
-		when 'T' Then 'R-Z'
-		when 'U' Then 'R-Z'
-		when 'V' Then 'R-Z'
-		when 'W' Then 'R-Z'
-		when 'X' Then 'R-Z'
-		when 'Y' Then 'R-Z'
-		when 'Z' Then 'R-Z'
-	else '???'
+	else 'R-Z'
 	end as alpha_group
 from employees
 order by alpha_group;
 
 #3) How many employees (current or previous) were born in each decade?
 
-select count(birth_date),	
+select count(birth_date), 	
 	case substr(birth_date, 2, 2)
-		when '95' Then '1950'
-		when '96' Then '1960'
-	else "???"
+		when '95' Then '1950s'
+		when '96' Then '1960s'
+	else "Young"
 	end as Decade
 from employees
 group by Decade;
-
-
 
 #Bonus
 
 #1) What is the current average salary for each of the following department groups: R&D, Sales & Marketing, Prod & QM, Finance & HR, Customer Service? 
 
 
+select
+	case 
+		WHEN dept_name IN ('research', 'development') THEN 'R&D'
+       WHEN dept_name IN ('sales', 'marketing') THEN 'Sales & Marketing' 
+       WHEN dept_name IN ('Production', 'Quality Management') THEN 'Prod & QM'
+       WHEN dept_name IN ('Finance', 'Human Resources') THEN 'Finance & HR'  
+       ELSE "Customer Service"
+    end as dept_group,
+    round(avg(salary),2) as avg_salary
+from employees_with_departments as ewd
+join salaries as s on s.emp_no = ewd.emp_no 
+		and s.to_date > curdate()
+group by dept_group;
+		
 
+
+
+
+
+
+
+
+use employees;
+
+SELECT avg(salary) as avg_salary, dept_group
+from salaries cross join
+		(select dept_name,
+			CASE 
+            WHEN dept_name IN ('research', 'development') THEN 'R&D'
+            WHEN dept_name IN ('sales', 'marketing') THEN 'Sales & Marketing' 
+            WHEN dept_name IN ('Production', 'Quality Management') THEN 'Prod & QM'
+            WHEN dept_name IN ('Finance', 'Human Resources') THEN 'Finance & HR'  
+            ELSE "Customer Service"
+        end as dept_group 
+      	from departments) as t1
+Where salaries.to_date > curdate()
+group by dept_group;
+
+
+select avg(salary), dept_name
+from salaries 
+join dept_emp using(emp_no)
+join departments using(dept_no)
+group by dept_name;
 
