@@ -138,20 +138,14 @@ order by alpha_group;
 
 #3) How many employees (current or previous) were born in each decade?
 
-select birth_date,	
+select count(birth_date),	
 	case substr(birth_date, 2, 2)
-		when '91' Then '1910'
-		when '92' Then '1920'
-		when '93' Then '1930'
-		when '94' Then '1940'
 		when '95' Then '1950'
 		when '96' Then '1960'
-		when '97' Then '1970'
-		when '98' Then '1980'
-		when '99' Then '1990'
 	else "???"
 	end as Decade
-from employees;
+from employees
+group by Decade;
 
 
 
