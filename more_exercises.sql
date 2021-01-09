@@ -53,6 +53,23 @@ from country
 group by Continent
 order by SUM(Population) DESC;
 
+#6)
+
+
+
+#7)
+
+
+
+#8)
+
+
+
+#9)
+
+
+
+#10)
 
 
 
