@@ -54,6 +54,7 @@ select Continent, SUM(Population)
 from country
 group by Continent
 order by SUM(Population) DESC;
+<<<<<<< HEAD
 
 #6) What is the average life expectancy globally?
 select avg(LifeExpectancy) as Avg_Global_Life_Expectancy
@@ -100,3 +101,5 @@ where Name = "Blackpool";
 
 
 
+=======
+>>>>>>> 5bce4c5b033b8480c7f69633f564a16c995b3297
