@@ -1,3 +1,5 @@
+Use world;
+
 #1) How much do the current managers of each department get paid, relative to the average salary for the department? Is there any department where the department manager gets paid less than the average salary?
 CREATE TABLE Manager_Salaries as(
 	SELECT dept_name, salary as Manager_Salary 
@@ -52,6 +54,40 @@ select Continent, SUM(Population)
 from country
 group by Continent
 order by SUM(Population) DESC;
+
+#6) What is the average life expectancy globally?
+select avg(LifeExpectancy) as Avg_Global_Life_Expectancy
+from country;
+
+
+#7) What is the average life expectancy for each region, each continent? Sort the results from shortest to longest
+
+select Continent, avg(LifeExpectancy) as Avg_Life_Expectancy_Con
+from country
+group by Continent
+order by Avg_Life_Expectancy_Con;
+
+select Region, avg(LifeExpectancy) as Avg_Life_Expectancy_Reg
+from country
+group by Region
+order by Avg_Life_Expectancy_Reg;
+
+#8) Find all the countries whose local name is different from the official name
+Select Name, LocalName
+from country
+where LocalName not like Name;
+
+#9) How many countries have a life expectancy less than x?
+Select Name, count(Code)
+from country
+where LifeExpectancy < 50
+group by Name;
+
+#10) What state is city x located in?
+Select Name, District
+from city
+where Name = "Blackpool";
+
 
 
 
